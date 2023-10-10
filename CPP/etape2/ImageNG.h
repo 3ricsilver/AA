@@ -1,4 +1,3 @@
-#ifndef IMAGENG_H //si pas definit on le definit sinon osef car on va boucler
 #define IMAGENG_H
 /////test 2/////////
 #include "Dimension.h"
@@ -16,6 +15,8 @@ class ImageNG
 	public:
 		ImageNG();
 		ImageNG(int i,const char *n);
+		ImageNG(int i,const char *n,const Dimension &d);
+
 		ImageNG(const ImageNG& i);
 		~ImageNG();
 		void setId(int val);
@@ -26,10 +27,10 @@ class ImageNG
 
 
 
-		///Test 2////////////////////////
-		Dimension dimension;//modif pour le test 2
-		void setDimension(Dimension Hauteur,Dimension Largeur);
-		void getDimension()const;
+		///Test 2///////////////////////
+		//void setDimension(int Hauteur,int Largeur);// avant j'avais fait Dimension a la place de int a modifier 
+		Dimension getDimension()const;
+		void setDimension(const Dimension &d);
 };
 
-#endif
+
