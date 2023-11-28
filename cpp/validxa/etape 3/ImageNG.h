@@ -13,7 +13,7 @@ class ImageNG
 	public:
 
 				//test 3//
-		static const int L_MAX=500;
+		static const int L_MAX=500;//le  prof nous dit de les changer a 700
   		static const int H_MAX=500;
   		
 		ImageNG();
