@@ -7,12 +7,12 @@ using namespace std;
 
 #include "Couleur.h"
 #include "ImageRGB.h"
-#include "ImageB.h"
+// #include "ImageB.h"
 #include "ImageNG.h"
 
 int  Menu();
 void Essai1();
-// void Essai2();
+void Essai2();
 // void Essai3();
 // void Essai4();
 // void Essai5();
@@ -35,7 +35,7 @@ int main(int argc,char* argv[])
     switch(choix)
     {
       case 1 : Essai1(); break;
-      // case 2 : Essai2(); break;
+      case 2 : Essai2(); break;
       // case 3 : Essai3(); break;
       // case 4 : Essai4(); break;
       // case 5 : Essai5(); break;
@@ -108,32 +108,32 @@ void Essai1()
 //*************************************************************************************************
 //*** Tests de setBackground, setPixel, Dessine et constructeur de copie de ImageRGB ************** 
 //*************************************************************************************************
-// void Essai2()
-// {
-//   cout << endl << "(2) Tests de setBackground, setPixel, Dessine et constructeur de copie de ImageRGB ********" << endl;
+void Essai2()
+{
+  cout << endl << "(2) Tests de setBackground, setPixel, Dessine et constructeur de copie de ImageRGB ********" << endl;
   
-//   ImageRGB image1(1,"testCouleur",Dimension(300,300));
-//   image1.setBackground(Couleur(0,0,128));
-//   for (int x=0 ; x<300 ; x=x+4) image1.setPixel(x,x,Couleur::VERT);
-//   cout << "Voici image1..." << endl;
-//   image1.Affiche();
-//   image1.Dessine();
+  ImageRGB image1(1,"testCouleur",Dimension(300,300));
+  image1.setBackground(Couleur(0,0,128));
+  for (int x=0 ; x<300 ; x=x+4) image1.setPixel(x,x,Couleur::VERT);
+  cout << "Voici image1..." << endl;
+  image1.Affiche();
+  image1.Dessine();
 
-//   {
-//     ImageRGB image2 (image1);
-//     cout << "On modifie la copie image2 de image1..." << endl;
-//     for (int x=0 ; x<300 ; x=x+4) image2.setPixel(x,299-x,Couleur::ROUGE);
-//     image2.setNom("testModif");
-//     cout << "Voici image2..." << endl;
-//     image2.Affiche();
-//     image2.Dessine();
-//     cout << "Destruction de image2..." << endl;
-//   }
+  {
+    ImageRGB image2 (image1);
+    cout << "On modifie la copie image2 de image1..." << endl;
+    for (int x=0 ; x<300 ; x=x+4) image2.setPixel(x,299-x,Couleur::ROUGE);
+    image2.setNom("testModif");
+    cout << "Voici image2..." << endl;
+    image2.Affiche();
+    image2.Dessine();
+    cout << "Destruction de image2..." << endl;
+  }
 
-//   cout << "Re-voici image1..." << endl;
-//   image1.Affiche();
-//   image1.Dessine();
-// }
+  cout << "Re-voici image1..." << endl;
+  image1.Affiche();
+  image1.Dessine();
+}
 
 //*************************************************************************************************
 //*** Test de importFromFile, getPixel et exportToFile de ImageRGB ******************************** 

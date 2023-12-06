@@ -10,17 +10,17 @@ using namespace std;
 /*Par défaut */
 ImageNG::ImageNG():Image()
 {
-	setBackground(0);
+	
 }
 
 ImageNG::ImageNG(int Id,const char *Nom):Image(Id,Nom)
 {
-	setBackground(0);
+	
 }
 
 ImageNG::ImageNG(int Id,const char *Nom,const Dimension &d):Image(Id,Nom,d)
 {
-	setBackground(0);
+	
 }
 
 /*Pour ouvrir des fichiers images  */
@@ -31,7 +31,7 @@ ImageNG::ImageNG(const char* FichierImage)
 	setId(0);
 	MyQT::ImportFromFile(*this,FichierImage);//this c'est ont crée une copie temporaire et cette partie permet de pendre le fichier
 }
-
+// copie //
 ImageNG::ImageNG(const ImageNG &image):Image(image)
 {
 	for(int i=0;i<d.getHauteur();i++)
