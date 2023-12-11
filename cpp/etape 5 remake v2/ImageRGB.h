@@ -8,6 +8,7 @@
 
 ////////////////////
 class MyQt;
+
 class ImageRGB : public Image
 {
 	public:
@@ -47,7 +48,7 @@ class ImageRGB : public Image
 	void importFromFile(const char* fichier);
 	void exportToFile(const char* fichier, const char* format) ;
 
-	void affiche() const;
+	void Affiche() const;
 
 
 

@@ -1,6 +1,7 @@
 #include "ImageRGB.h"
 #include "MyQT.h"
 #include <iostream>
+
 using namespace std;
 
 ImageRGB::ImageRGB():Image()
@@ -49,9 +50,9 @@ ImageRGB::ImageRGB(const ImageRGB& image):Image(image)
 ImageRGB::ImageRGB(const char *fichier)
 {
     nom=NULL;
-    setNom(FichierImage);
+    setNom(fichier);
     setId(0);
-    MyQT::ImportFromFile(*this,FichierImage);
+    MyQT::ImportFromFile(*this,fichier);
 }
 //destructeur//
 ImageRGB::~ImageRGB()//image le fait déja donc faut rien faire eric fuutur
@@ -78,7 +79,7 @@ void ImageRGB::setBackground(const Couleur& valeur)
 
 
 //getter// 
-Couleur ImageRGB::getPixel(int x,int y) 
+Couleur ImageRGB::getPixel(int x,int y) const
 {
     return matrice[y][x];
 }
@@ -110,7 +111,7 @@ void ImageRGB::exportToFile(const char* fichier, const char* format)
     MyQT::ExportToFile(*this,fichier,format);
 }
 
-void ImageRGB::affiche() const
+void ImageRGB::Affiche() const
 {
   cout <<"nom:"<<nom<<" id:"<<id<<"Dimension:"<< endl;
   d.Affiche();
