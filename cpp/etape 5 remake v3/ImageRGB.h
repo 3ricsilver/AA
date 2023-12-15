@@ -40,7 +40,7 @@ class ImageRGB : public Image
 
 
     //methode//
-    void Affiche() const;s
+    void Affiche() const;
     void Dessine()const;
     void exportToFile(const char* fichier,const char* format);
     void importFromFile(const char* fichier);
