@@ -1,5 +1,7 @@
 #include "./presentation/presentation.h"
 
+#include <time.h>
+
 void *fctThreadFenetreGraphique(void *);
 void *fctThreadEvenements(void *);
 void *fctThreadStanley(void *);
@@ -72,56 +74,114 @@ int main(int argc, char* argv[])
 {
     int i;
 
-    struct sigaction Sigalarm;
-    Sigalarm.sa_handler = handlerSIGALRM;
-    Sigalarm.sa_flags = 0;
-    sigemptyset(&Sigalarm.sa_mask);
-    sigaction(SIGALRM, &Sigalarm, NULL);
+    //masque
 
-
-    pthread_mutex_init(&mutexEtatJeu,NULL);
-    pthread_mutex_init(&mutexEvenement,NULL);
-    pthread_mutex_init(&mutexEchec,NULL);
-
-    pthread_cond_init(&condEvenement,NULL);
-    pthread_cond_init(&condEchec,NULL);
-
-    pthread_key_create(&keySpec,destructeurVS);
-/*todo faire une fonction free pour libérer la mémoire*/
-    
-    //truc pour generer un chiffre au pif en gros la seed si tu as la flemme de relire
-    srand(time(NULL));
+/*    struct sigaction dz1;
+    dz1.sa_handler = handlerSIGALRM;
+    dz1.sa_flags = 0;
+    sigemptyset(&dz1.sa_mask);
+    sigaction(SIGALRM, &dz1, NULL);*/
 
     ouvrirFenetreGraphique();
-    
-    pthread_t fenetre,evenement,stan,EnemieMobChezPasQuoi;
+    pthread_t fenetre,evenement,stan;
 
 
-    sigset_t mask;
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGALRM);//selectionner le signal
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
-
-    pthread_create(&fenetre, NULL,fctThreadFenetreGraphique,NULL);//thread quand on start le jeu
-    pthread_create(&evenement, NULL,fctThreadEvenements,NULL);//thread pour lire le clavier
-    pthread_create(&stan,NULL,fctThreadStanley,NULL);
-    pthread_create(&EnemieMobChezPasQuoi,NULL,fctThreadEnnemis,NULL);
+        pthread_create(&fenetre, NULL,fctThreadFenetreGraphique,NULL);//thread quand on start le jeu
+        pthread_create(&evenement, NULL,fctThreadEvenements,NULL);//thread pour lire le clavier
+       pthread_create(&stan,NULL,fctThreadStanley,NULL);
 
         //attend la mort
 
         pthread_join(evenement,NULL);
+    /*for(i = 0; i < 6; i++)
+    {
+        afficherStanley(HAUT, i, NORMAL);
+        afficherStanley(HAUT, i, SPRAY);
+    }
 
+    afficherStanley(ECHELLE, 0);
+    afficherStanley(ECHELLE, 1);
+
+    for(i = 0; i < 4; i++)
+    {
+        afficherStanley(BAS, i, NORMAL);
+        afficherStanley(BAS, i, SPRAY);
+    }
+
+    for(i = 0; i < 5; i++)
+    {
+        afficherAmi(i, NORMAL);
+        afficherAmi(i, TOUCHE);
+    }
+
+    for(i = 0; i < 5; i++)
+        afficherChenilleG(i);
+
+    for(i = 0; i < 7; i++)
+        afficherChenilleD(i);
+
+    for (i = 0; i < 5; i++)
+    {
+        afficherAraigneeG(i);
+        afficherAraigneeD(i);
+    }
+
+    for(i = 0; i < 4; i++)
+    {
+        afficherInsecticideG(i);
+        afficherInsecticideD(i + 1);
+    }
+
+    afficherGuepe(0);
+    afficherGuepe(1);
+
+    afficherEchecs(3);
+
+    afficherScore(0);
+
+    actualiserFenetreGraphique();
+    while(1)
+    {
+        evenement = lireEvenement();
+
+        switch(evenement)
+        {
+            case SDL_QUIT:
+                exit(0);
+
+            case SDLK_UP:
+                printf("KEY_UP\n");
+                break;
+
+            case SDLK_DOWN:
+                printf("KEY_DOWN\n");
+                break;
+
+            case SDLK_LEFT:
+                printf("KEY_LEFT\n");
+                break;
+
+            case SDLK_RIGHT:
+                printf("KEY_RIGHT\n");
+                break;
+
+            case SDLK_SPACE:
+                printf("SDLK_SPACE\n");
+        }
+    }*/
 }
 //eric du futur fait ca 
 
 void* fctThreadFenetreGraphique(void*)
 {
+ afficherStanley(BAS, 0, NORMAL);
+ afficherScore(0);
 
-    sigset_t mask;
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGALRM);//selectionner le signal
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
-
+ afficherAmi(FLEUR_HG,NORMAL);
+ afficherAmi(FLEUR_HD,NORMAL);
+ afficherAmi(FLEUR_BG,NORMAL);
+ afficherAmi(FLEUR_BD,NORMAL);
+ afficherAmi(CHAT,NORMAL);
  while(true)
  {
   struct timespec temps;
@@ -143,18 +203,11 @@ void* fctThreadFenetreGraphique(void*)
 
 void *fctThreadEvenements(void *)
 {
-    sigset_t mask;
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGALRM);//selectionner le signal
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
-
     int event;//ca marche si je fais evenement direct mais ca crash au bout d'un moment
-
     while(1)
     {
-        event=lireEvenement();
-        pthread_mutex_lock(&mutexEvenement);//en gros pense au feu rouge il attend que le truc soit unlock pour la lock puis on va la manipuler
-        evenement=event;
+        pthread_mutex_lock(&mutexEvenement);//en gros attend qu'il soit dispo puis va lock pour éviter les accés concurent des autres threads afin c'est c'est ce que j'ai capté
+        evenement=lireEvenement();
         if(SDL_QUIT==evenement)
         {
             printf("Vrai dz fait ctrl + c");
@@ -165,8 +218,8 @@ void *fctThreadEvenements(void *)
 
         struct timespec temps;
         temps.tv_sec =0;
-        temps.tv_nsec = 100000000; //O,1 SECONDE
-        nanosleep(&temps, NULL); // attendre 0,1 s 
+        temps.tv_nsec = 100000000; 
+        nanosleep(&temps, NULL);
 
 
     }
@@ -174,23 +227,21 @@ void *fctThreadEvenements(void *)
 
 void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de multiple if pourquoi pas faire une grosse condition genre 0 jusqu'a 4
 {
-
     //pour les sleeep 0.2sec
     struct timespec tempsstan;
     tempsstan.tv_sec =0;
     tempsstan.tv_nsec = 200000000; //O,2 SECONDe 
-    //...//apparament selon pompeo c'est masque le signal to do est ce que j'ai juste je sis pas
-
+    
     sigset_t mask;
     sigemptyset(&mask);
-    sigaddset(&mask, SIGALRM);//selectionner le signal
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
+    sigaddset(&mask, SIGALRM);
+    sigprocmask(SIG_SETMASK, &mask, NULL);
 
     while(true)
     {
         pthread_mutex_lock(&mutexEvenement);
 
-        pthread_cond_wait(&condEvenement,&mutexEvenement);//attend que le mutexevenement atteigne la condition
+        pthread_cond_wait(&condEvenement,&mutexEvenement);//apparemebt ce qu'il veut selon les consignes //thread puis mutex
 
         pthread_mutex_lock(&mutexEtatJeu); 
  
@@ -201,8 +252,54 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                 {
                     case SDLK_SPACE:
 
+                    //vieille version sale moche 
+                        // if(etatJeu.positionStanley == 0)
+                        // {
+                        //     etatJeu.actionStanley = SPRAY;
+                        //      pthread_mutex_unlock(&mutexEtatJeu);
+                        //      // attendre 0,2 s 
+                        //      nanosleep(&tempsstan, NULL);
+                        //      pthread_mutex_lock(&mutexEtatJeu);
+                        //      etatJeu.actionStanley = NORMAL;
+                        //      printf("spray 0\n");
+                        // }
+                        
+                        // if(etatJeu.positionStanley == 1)
+                        // {
+                        //     etatJeu.actionStanley = SPRAY;
+                        //      pthread_mutex_unlock(&mutexEtatJeu);
+                        //      // attendre 0,2 s 
+                        //      nanosleep(&tempsstan, NULL);
+                        //      pthread_mutex_lock(&mutexEtatJeu);
+                        //      etatJeu.actionStanley = NORMAL;
+                        //      printf("spray 1\n");
+                        // }
+
+                        // if(etatJeu.positionStanley == 2)
+                        // {
+                        //     etatJeu.actionStanley = SPRAY;
+                        //      pthread_mutex_unlock(&mutexEtatJeu);
+                        //      // attendre 0,2 s 
+                        //      nanosleep(&tempsstan, NULL);
+                        //      pthread_mutex_lock(&mutexEtatJeu);
+                        //      etatJeu.actionStanley = NORMAL;
+
+                        //      printf("spray 2\n");
+                        // }
+
+                        // if(etatJeu.positionStanley == 3)
+                        // {
+                        //     etatJeu.actionStanley = SPRAY;
+                        //      pthread_mutex_unlock(&mutexEtatJeu);
+                        //      // attendre 0,2 s 
+                        //      nanosleep(&tempsstan, NULL);
+                        //      pthread_mutex_lock(&mutexEtatJeu);
+                        //      etatJeu.actionStanley = NORMAL;
+
+                        //      printf("spray 3\n");
+                        // }
                         pthread_mutex_unlock(&mutexEtatJeu);
-                        if(etatJeu.positionStanley >=0 && etatJeu.positionStanley<= 4 && etatJeu.positionStanley != 1 ) 
+                        if(etatJeu.positionStanley >=0 && etatJeu.positionStanley<= 4 && etatJeu.positionStanley != 1 ) // C'est beaucoup plus beau 
                         {
                             etatJeu.actionStanley = SPRAY;
                              
@@ -218,7 +315,6 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
 
                         break;
                      case SDLK_LEFT:
-                        
                         pthread_mutex_unlock(&mutexEtatJeu);
                         if(etatJeu.positionStanley > 0)
                         {
@@ -266,6 +362,20 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                 switch(evenement)
                 {
                     case SDLK_DOWN:
+                    // pthread_mutex_unlock(&mutexEtatJeu);     
+
+                    // if(etatJeu.etatStanley == ECHELLE && etatJeu.positionStanley == 0)
+                    // {
+                    //     etatJeu.etatStanley = ECHELLE;
+                    //     etatJeu.positionStanley = 1;
+                    // }
+
+                    // if(etatJeu.etatStanley == ECHELLE && etatJeu.positionStanley == 1)
+                    // {
+                    //     etatJeu.etatStanley = BAS;
+                    //     etatJeu.positionStanley = 1;
+                    // }
+                    // pthread_mutex_lock(&mutexEtatJeu);  
 
                     pthread_mutex_unlock(&mutexEtatJeu);  
                     if(etatJeu.etatStanley == ECHELLE && etatJeu.positionStanley < 1)
@@ -285,6 +395,19 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                     case SDLK_UP:       
                     pthread_mutex_unlock(&mutexEtatJeu);
                                                 
+                    //version eric qui marche moitié
+/*                    if(etatJeu.positionStanley == 1)
+                    {
+                        etatJeu.positionStanley = 0;
+                    }
+
+                    if(etatJeu.positionStanley == 0)
+                    {
+                        etatJeu.etatStanley = HAUT;
+                        etatJeu.positionStanley = 2;
+                    }*/
+
+                    // en gros je suis débile le truc check la premiere condi si elle est juste elle passe et ce fait verif encore dans la suivante et c'est pour ca que ca skip deux a la place d'une
                     if (etatJeu .positionStanley==1)
                         etatJeu.positionStanley = 0;
 
@@ -307,8 +430,10 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                         if(etatJeu.positionStanley >=0 && etatJeu.positionStanley<= 5 && etatJeu.positionStanley != 2 ) // C'est beaucoup plus beau 
                         {
                             etatJeu.actionStanley = SPRAY;
+                             pthread_mutex_unlock(&mutexEtatJeu);
                              // attendre 0,2 s 
                              nanosleep(&tempsstan, NULL);
+                             pthread_mutex_lock(&mutexEtatJeu);
                              etatJeu.actionStanley = NORMAL;
 
                              printf("spray bas %d\n",etatJeu.positionStanley);
@@ -368,101 +493,58 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
  pthread_exit(0);
 }
 
-void *fctThreadEnnemis(void *)//probablement utiliser des cases ou un vecteur  eric du futur todo
+/*void *ThreadEnnemis(void *)//probablement utiliser des cases ou un vecteur  eric du futur todo
 {
-    //to do un truc pour recevoir le signal unblock
-    sigset_t mask;
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGALRM);//selectionner le signal
-    pthread_sigmask(SIG_UNBLOCK, &mask, NULL);// bloquer
-            
-    alarm(10);//invoquer le saint sig
-
-    int EnnemiAleatoireRandomAuPif;//faire srand
-
-    //son timer bizzare faut le visualier comme un coffre avec une clée (utilisation du malloc) en gros eric du futur qui relit c'est setspecific c'est comme un coffre avec une clé pour accéder au truc
-    int *TimerEnnemieCooldown = (int*)malloc(sizeof(int));//son timer initiale
-    *TimerEnnemieCooldown=1600;
-    pthread_setspecific(keySpec,(void*)TimerEnnemieCooldown);//c'est le coffre
-
+    
     while(1)
     {
 
-        EnnemiAleatoireRandomAuPif=rand() % 4;
-        fprintf(stderr,"Enemies %d spawn \n",EnnemiAleatoireRandomAuPif);
+        int EnnemiAleatoireRandomAuPif;//faire srand
 
+        //son timer bizzare faut le visualier comme un coffre avec une clée (utilisation du malloc)
+        int TimerEnnemieCooldown = (*int)malloc(TimerEnnemieCooldown);
+        *TimerEnnemieCooldown=1600
+        pthread_setspecific(keySpec,(void*)TimerEnnemieCooldown);//c'est le coffre
+
+
+
+
+        //truc pour generer un chiffre au pif
+        srand(time(NULL));
+        EnnemiAleatoireRandomAuPif=rand() % 4;
+        printf("%d",EnnemiAleatoireRandomAuPif);
 
         //to do mettre les threads de ces enemies
         switch(EnnemiAleatoireRandomAuPif)
         {
             case 0://GUEPE
-                break;
+
             case 1://CHENILLE_G
-                // pthread_create(&Guepes, NULL, fctThreadGuepe, NULL);
-                break;
+
             case 2://CHENILLE_D
-                break;
+
             case 3://ARAIGNEE_G
-                break;
+
             case 4://ARAIGNEE_D
-                break;
         }
-
-        struct timespec Lagalere;
-        Lagalere.tv_sec = *TimerEnnemieCooldown / 1000; // Seconde donc je vais chopper les 1 secondes car ca va arrondir 1.6 a 1
-        Lagalere.tv_nsec = (*TimerEnnemieCooldown % 1000) * 1000000; // 0.6 qui nous faut
-
-        //pour pas spam les mobs
-        nanosleep(&Lagalere, NULL);
-        //pour test a enlever voir si ca fait bien changer le 1.6 s
-        fprintf(stderr,"Je varie bro %d\n",*TimerEnnemieCooldown);//pourquoi ca affiche un truc bizzare
-
-        /*free(TimerEnnemieCooldown);//destructeur*/
     }
 
-}
+}*/
 
-//to do faire un sig int
+//5 enemies possible
+// 1,6 s.le temps de spawn le truc figure dans une une zone de mémoire allouée dynamiquement (usage de malloc())
 
-void *fctThreadGuepe(void *)
-{
-    //masque ??
-    sigset_t mask;
-    sigemptyset(&mask);
-    sigaddset(&mask, SIGALRM);//selectionner le signal
-    pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
-
-    for(int Kaaris=0; Kaaris < 2; Kaaris++)
-    {
-
-    }
-        
-    pthread_exit(0);
-}
-
-void destructeurVS(void *p)
-{
-    free(p);
-    fprintf(stderr,"Destruceur Vs");
-}
+//pthread_setspecific mais jsp meme pas si faut utiliser le int ou le void pour stocker la variable
+//SIGALRM (usage de pthread_getspecific())
+//pas oublié un destructeur pour les enemies
 
 
-void handlerSIGALRM(int sig)//je crash dés que je l'invoque
+/*void handlerSIGALRM(int sig)
 {
     (void)sig;//pas avoir le warning
-    fprintf(stderr,"(%d) SigAlarm envoyer\n" ,pthread_self());
+    printf("(%d) SigAlarm %d\n" ,getpid());
 
-    int *DelaiSpawnModif = (int *)pthread_getspecific(keySpec);//chopper la varable et la toucher dans le coffre afin c'est ce que j'ai capté
+    int *DelaiApparition = (int *)pthread_getspecific(keySpec);//chopper la varable et la toucher dans le coffre afin c'est ce que j'ai capté
 
     //to entre 1.1 et 1.6sed
-    *DelaiSpawnModif = 1100 + rand()% 501;
-
-    alarm(10);//jsp si c'est propre de faire ca mais vu qu'on sort pas de la boucle je vois pas comment je pourrai le réappeler dans le thread enemie
-}
-
-void handlerSIGINT
-{
-    (void)sig;//pas avoir le warning
-    fprintf(stderr,"(%d) SigInt envoyer\n" ,pthread_self());
-    
-}
+}*/
