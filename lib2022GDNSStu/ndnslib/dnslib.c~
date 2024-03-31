@@ -1,0 +1,558 @@
+#include <stdio.h>
+#include "string.h"
+#include <stdlib.h>
+#include "dnslib.h"
+
+typedef struct item
+{
+struct item *next;
+void *data;
+} item_s;
+
+struct sll
+{
+item_s *p_start;
+item_s *list;
+};
+
+sll_s *sll_new (void)
+{
+sll_s *p_sll = malloc (sizeof *p_sll);
+if (p_sll)
+{
+item_s *p_l = malloc (sizeof *p_l);
+if (p_l)
+{
+p_l->data = NULL;
+p_l->next = NULL;
+p_sll->p_start = p_l;
+p_sll->list = NULL;
+}
+else
+{
+fprintf (stderr, "Memoire insufisante\n");
+exit (EXIT_FAILURE);
+}
+}
+else
+{
+fprintf (stderr, "Memoire insufisante\n");
+exit (EXIT_FAILURE);
+}
+return p_sll;
+}
+void sll_insert (sll_s * p_sll, void *data)
+{
+if (p_sll)
+{
+item_s *p_l = p_sll->list;
+item_s *p_n = NULL;
+p_n = malloc (sizeof (*p_n));
+if (p_n)
+{
+p_n->data = data;
+if (p_l == NULL)
+{
+p_sll->p_start->next = p_n;
+p_n->next = NULL;
+}
+else
+{
+p_n->next = p_l->next;
+p_l->next = p_n;
+}
+p_sll->list = p_n;
+}
+else
+{
+fprintf (stderr, "Memoire insuffisante\n");
+exit (EXIT_FAILURE);
+}
+}
+}
+void sll_removeNext (sll_s * p_sll)
+{
+if (p_sll && p_sll->list)
+{
+item_s *p_l = p_sll->list;
+item_s *p_n = NULL;
+p_n = p_l->next;
+p_l->next = p_n->next;
+free (p_n);
+p_n = NULL;
+}
+}
+void sll_removeFirst (sll_s * p_sll)
+{
+if (p_sll)
+{
+p_sll->list = p_sll->p_start;
+sll_removeNext (p_sll);
+}
+}
+void sll_next (sll_s * p_sll)
+{
+if (p_sll && p_sll->list)
+{
+p_sll->list = p_sll->list->next;
+}
+}
+void *sll_data (sll_s * p_sll)
+{
+return ((p_sll && p_sll->list) ? p_sll->list->data : NULL);
+}
+void sll_first (sll_s * p_sll)
+{
+if (p_sll)
+{
+p_sll->list = p_sll->p_start->next;
+}
+}
+void sll_last (sll_s * p_sll)
+{
+if (p_sll)
+{
+while (p_sll->list->next != NULL)
+{
+sll_next (p_sll);
+}
+}
+}
+size_t sll_sizeof (sll_s * p_sll)
+{
+size_t n = 0;
+item_s *tempo ;
+
+tempo = p_sll->list ;
+if (p_sll)
+{
+sll_first (p_sll);
+while (p_sll->list != NULL)
+{
+n++;
+sll_next (p_sll);
+}
+// sll_first (p_sll) ; 
+}
+p_sll->list = tempo ;
+return n;
+}
+
+void sll_delete (sll_s ** pp_sll)
+{
+if (pp_sll && *pp_sll)
+{
+sll_first (*pp_sll);
+while ((*pp_sll)->list->next != NULL)
+{
+sll_removeNext (*pp_sll);
+}
+sll_removeFirst (*pp_sll);
+free ((*pp_sll)->list);
+(*pp_sll)->list = NULL;
+free (*pp_sll), *pp_sll = NULL;
+}
+}
+
+char* SuffixeDe(char *Suffixe, char* Chaine)
+{
+int LongSuffixe,LongChaine ;
+// on compare les chaines Ã partir de la fin
+LongSuffixe=strlen(Suffixe) ;
+LongChaine=strlen(Chaine) ;
+if (LongSuffixe == 0 || LongChaine == 0 )
+return NULL ;
+Suffixe= Suffixe + LongSuffixe-1 ;
+Chaine= Chaine + LongChaine-1 ;
+while ( LongChaine && LongSuffixe && *Suffixe==*Chaine )
+{
+LongSuffixe-- ;
+LongChaine-- ;
+Suffixe-- ;
+Chaine-- ;
+}
+if (LongSuffixe)
+return NULL ;
+else
+return (Chaine+1) ;
+}
+
+char* SepareHoteDomaine(char *FQDN, char** Domaine)
+{
+ char *Start  ;
+ int TrouvePoint  ;
+ 
+ Start = FQDN ;
+ TrouvePoint=0 ;
+ while(*FQDN )
+ {  
+   if ( (*FQDN) == '.' )
+   {
+        *FQDN = 0 ;
+	*Domaine = ++FQDN ;
+	TrouvePoint = 1 ;
+	break ;
+   }
+  FQDN++ ; 
+ }
+ if (!TrouvePoint)
+    return 0 ;
+ else   
+    return Start ;
+}
+
+char* EnleveGL( char *Chaine)
+{ 
+  char *ChaineBis, *Copie ;
+  ChaineBis = (char *) malloc(strlen(Chaine)+1) ;
+  Copie = ChaineBis ; 
+  while(*Chaine!=0)
+  {
+   if ( *Chaine=='"' )
+      Chaine++ ; /* on ne recopie pas les guillements */
+   else
+   {
+      *Copie++ = *Chaine++ ;
+   }      
+  }
+  *Copie=0 ; /* la chaine copiée doit se terminer par un zero */
+  return(ChaineBis) ;
+}
+
+void Enleve1013(char *Chaine)
+{
+ while(*Chaine != 0)
+ {
+  if ( (*Chaine== 10) || (*Chaine==13) )
+     {
+       *Chaine = 0 ;
+       return ;
+     }
+  Chaine++ ;   
+ }  
+}
+
+
+
+int 	Ipv4ToArray(char *strsource,int Membre[4])
+{
+ char   dt[4] ;
+ int	NumeroMembre,NombreDigits ;
+ int	i,s,lg ;
+ char   str[16] ; /* pour ne pas alterer l'original */
+ i = 0 ;
+ s = 0 ;
+ NumeroMembre = 0 ;
+ NombreDigits = 0 ;
+ memset(Membre,0,sizeof Membre ) ;
+ lg = strlen(strsource) ;
+ strncpy(str,strsource,16) ;
+ while (i<=lg)  /* Il faut traiter aussi le 0 de fin de chaine */
+ {
+  if (isdigit(str[i]))
+    NombreDigits++ ;
+  else
+  if (str[i]=='.' || str[i]==0 )
+  {
+   char tmp[4] ;
+   if (NombreDigits==0 || NombreDigits > 3 )
+      return -1 ;
+   if (NumeroMembre>3)
+      return -1 ;
+   str[i] = 0 ;
+   strcpy(tmp,&str[s]) ;
+   Membre[NumeroMembre] = atoi(tmp) ;
+   s = i+1 ;
+   NumeroMembre++ ;
+   NombreDigits = 0 ;
+  }
+  else /* Pas un chiffre ni un point, ni un z�o */
+     return -1 ;
+  i++ ;
+ }
+ 
+ return 1 ;   
+}   
+
+
+int Recherche(FILE *fp , char *query,char *B1,char*B2 )
+{
+  char Buffer[81] ;
+  int trouve ;
+  trouve = 0 ;
+  while ( fgets(Buffer,sizeof Buffer,fp),!feof(fp) )
+{
+    B1[0] = B2[0] = 0 ;
+    sscanf(Buffer,"%s %s",B1,B2);
+    if ( strcmp(B1,query)== 0 )
+     {
+      fprintf(stderr,"R %s %s \n",B1,B2) ;
+      trouve = 1 ;
+      goto exit ;
+     }
+}     
+ exit:
+ return(trouve) ;
+}
+
+
+int LectureZone(FILE *fp,char *B2,sll_s *pl)
+
+{
+  char Buffer[81],B1[80],BB2[80] ;
+  char *pcB2 ;
+  int I1,I2,I3 ;
+  struct EntreeNamedConf *UneEntree ;
+  
+  UneEntree = ( struct EntreeNamedConf * ) malloc(sizeof (struct EntreeNamedConf ) ) ;
+ if (SuffixeDe("in-addr.arpa",B2)!=NULL)
+ {
+  I1=I2=I3=0 ; 
+  sscanf(B2,"%d.%d.%d.%s", &I1,&I2,&I3,Buffer ) ;
+  fprintf(stderr,"zone Resultat %d.%d.%d\n",I3,I2,I1) ;
+  UneEntree->Type = DBAddress ;
+  UneEntree->I1 = I3 ;
+  UneEntree->I2 = I2 ;
+  UneEntree->I3  = I1 ;
+ }
+ else
+ {
+   fprintf(stderr,"zone#%s#\n",B2) ;
+   UneEntree->Type = DBDomain ;
+   strcpy(UneEntree->nom,B2) ;
+ }  
+ if (!Recherche(fp ,"type",B1,BB2 ))
+    {
+     printf("zone sans type \n") ;
+     return(0) ;     
+    }  
+  if (!Recherche(fp ,"file",B1,BB2 ))
+    {
+     printf("zone sans file \n") ;
+     return(0) ;     
+    }
+  else
+  {  
+    pcB2 = EnleveGL(BB2) ;  
+    strcpy(UneEntree->Fichier,pcB2 ) ;    
+  }
+  if (!Recherche(fp ,"HV",B1,BB2 ))
+    {
+     printf("zone sans file \n") ;
+     return(0) ;     
+    }
+  else
+  {  
+    pcB2 = EnleveGL(BB2) ;  
+    strcpy(UneEntree->HV,pcB2 ) ;    
+  }
+  sll_insert (pl,UneEntree) ;
+  return(1) ;  
+}
+
+void LectureNamedConf(char *NomFichier,sll_s *pl)
+{
+  
+  FILE *fp ;
+  char Buffer[81] ;
+  char B1[40],B2[40],B3[40],B4[40] ;
+  char *pCB2 ;
+  fp = fopen(NomFichier,"r") ;
+  if (fp==NULL)
+  {
+    printf("Echec ouverture %s\n", NomFichier) ;
+    exit(0) ;  
+  }
+  else
+     printf("Ouverture réussie de %s\n",NomFichier) ;
+  while ( fgets(Buffer,sizeof Buffer,fp),!feof(fp) )
+  {
+    B1[0] = B2[0] = B3[0] = B4[0] = 0 ;
+    sscanf(Buffer,"%s %s %s %s",B1,B2,B3,B4);
+     if ( strcmp(B1,"zone")== 0 )
+     {
+      pCB2 = EnleveGL(B2) ;
+  //    fprintf(stderr,"%s sans Guillement %s\n",B2,B2) ;
+      if (!LectureZone(fp,pCB2,pl))
+	  exit(0) ;
+     } 
+}
+fclose(fp) ;
+}
+
+ void list_namedconf(sll_s * p_l)
+{
+int i;
+int size = sll_sizeof (p_l);
+sll_first (p_l);
+for (i = 0; i < size; i++)
+{
+if (sll_data (p_l) != NULL)
+  {
+  struct EntreeNamedConf *PE ;
+  PE =  (struct EntreeNamedConf*) sll_data (p_l) ;
+  if (PE->Type == DBDomain )
+     printf("Domaine#%s#:\n",PE->nom ) ;
+  else
+    printf("netid %d %d %d \n",PE->I1,PE->I2,PE->I3) ;
+  printf("Fichier#%s#\n",PE->Fichier ) ;
+  printf("Nom#%s#\n",PE->HV ) ;
+  }
+sll_next (p_l);
+}
+printf ("\n");
+}
+
+char* RechercheNomDomaine(char *Domaine, sll_s * p_l)
+{
+int i;
+int size = sll_sizeof (p_l);
+sll_first (p_l);
+for (i = 0; i < size; i++)
+{
+if (sll_data (p_l) != NULL)
+  {
+  struct EntreeNamedConf *PE ;
+  PE =  (struct EntreeNamedConf*) sll_data (p_l) ;
+  if (PE->Type == DBDomain )
+  {
+     fprintf(stderr,"Domaine #%s# zone #%s#\n",PE->nom,Domaine ) ;
+     if( strcmp(PE->nom,Domaine)==0 )
+     {
+        printf("Trouvé\n") ;
+	return(PE->Fichier);
+     }	
+  }   
+  }
+sll_next (p_l);
+}
+fprintf (stderr,"Rercherche Domaine Terminée \n");
+return(NULL) ;
+}
+
+char* RechercheNetID(int Octets[4], sll_s * p_l)
+{
+int i;
+int size = sll_sizeof (p_l);
+sll_first (p_l);
+for (i = 0; i < size; i++)
+{
+if (sll_data (p_l) != NULL)
+  {
+  struct EntreeNamedConf *PE ;
+  PE =  (struct EntreeNamedConf*) sll_data (p_l) ;
+  if (PE->Type == DBAddress )
+  {
+     //fprintf(stderr,"Domaine #%s#\n",PE->nom ) ;
+     if( PE->I1 == Octets[0] && PE->I2 == Octets[1] && PE->I3 == Octets[2]  )
+     {
+        printf("Trouvé\n") ;
+	return(PE->Fichier);
+     }	
+  }   
+  }
+sll_next (p_l);
+}
+fprintf (stderr,"terminé RecherchenetID\n");
+return(NULL) ;
+}
+
+void LectureDB(char *NomFichier,sll_s *pl)
+{
+  
+  FILE *fp ;
+  char Buffer[81] ;
+  char B1[40],B2[40],B3[40],B4[40] ;
+  char *pCB2 ;
+  fp = fopen(NomFichier,"r") ;
+  if (fp==NULL)
+  {
+    printf("Echec ouverture %s\n", NomFichier) ;
+    exit(0) ;  
+  }
+  else
+     printf(" V1.0 Ouverture réussie de %s\n",NomFichier) ;
+  while ( fgets(Buffer,sizeof Buffer,fp),!feof(fp) )
+  {
+    B1[0] = B2[0] = B3[0] = B4[0] = 0 ;
+    sscanf(Buffer,"%s %s %s %s",B1,B2,B3,B4);
+     if ( strcmp(B2,"IN")== 0 )
+     {
+      struct EntreeZone *PEZ ; 
+      PEZ = ( struct EntreeZone * ) malloc(sizeof (struct EntreeZone ) ) ;
+      if ( strcmp(B3,"NS" )==0 )
+	PEZ->Type = NS ;	
+      else
+	 if ( strcmp(B3,"A")==0 ) 
+	   PEZ->Type = A ;
+	 else
+	    if ( strcmp(B3,"PTR")==0 )
+	      PEZ->Type = PTR ;
+	    else
+               if (strcmp(B3,"HV")==0 )
+                 PEZ->Type = HV ;
+               else
+	  	{
+	         printf("Record Inconnu\n") ;
+	        continue ;
+	  	}
+	strncpy(PEZ->Nom, B1, sizeof(PEZ->Nom)) ;
+	strncpy(PEZ->Valeur,B4,sizeof(PEZ->Valeur)) ;
+	sll_insert (pl,PEZ) ;
+     } 
+   }
+fclose(fp) ;
+}
+
+void list_DB(sll_s * p_l)
+{
+int i;
+int size = sll_sizeof (p_l);
+sll_first (p_l);
+printf("Debut 1.1\n") ;
+for (i = 0; i < size; i++)
+{
+if (sll_data (p_l) != NULL)
+  {
+  struct EntreeZone *PEZ ;
+  PEZ =  (struct EntreeZone*) sll_data (p_l) ;
+  printf("%s ",PEZ->Nom) ; 
+  if (PEZ->Type == NS) 
+     printf(" %d IN NS ",PEZ->Type) ;
+  else   
+     if (PEZ->Type == A )
+        printf("%d IN A ",PEZ->Type) ;
+     else
+        if (PEZ->Type== PTR )       
+	    printf("%d IN PTR",PEZ->Type) ;
+        else
+           if (PEZ->Type== HV ) 
+		printf("%d IN HV",PEZ->Type) ;	
+
+   printf("%s\n",PEZ->Valeur) ;	
+  }
+sll_next (p_l);
+}
+printf ("\n");
+}
+
+char  *Recherche_DB(char *Nom,int Type,sll_s * p_l)
+{
+int i;
+int size = sll_sizeof (p_l);
+sll_first (p_l);
+for (i = 0; i < size; i++)
+{
+if (sll_data (p_l) != NULL)
+  {
+  struct EntreeZone *PEZ ;
+  PEZ =  (struct EntreeZone*) sll_data (p_l) ;
+  // printf("%s ",PEZ->Nom) ; 
+  if (strcmp(Nom,PEZ->Nom)==0 && PEZ->Type== Type )
+     return( PEZ->Valeur );
+  }
+sll_next (p_l);
+}
+printf ("\n");
+return(NULL) ;
+}

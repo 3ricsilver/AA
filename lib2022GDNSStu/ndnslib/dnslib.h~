@@ -1,0 +1,50 @@
+#ifndef H_LISTESIMPLE
+#define H_LISTESIMPLE
+#include <stddef.h> /* pour size_t */
+typedef struct sll sll_s;
+sll_s *sll_new (void);
+void sll_insert (sll_s *, void *);
+void sll_removeNext (sll_s *);
+void sll_removeFirst (sll_s *);
+void sll_next (sll_s *);
+void *sll_data (sll_s *);
+void sll_first (sll_s *);
+void sll_last (sll_s *);
+size_t sll_sizeof (sll_s *);
+void sll_delete (sll_s **);
+
+char* SuffixeDe(char *Suffixe, char* Chaine) ;
+char* SepareHoteDomaine(char *FQDN, char** Domaine) ;
+char* EnleveGL( char *Chaine) ;
+void Enleve1013(char *Chaine) ;
+int 	Ipv4ToArray(char *strsource,int Membre[4]) ;
+int Recherche(FILE *fp , char *query,char *B1,char*B2 ) ;
+int LectureZone(FILE *fp,char *B2,sll_s *pl) ;
+void LectureNamedConf(char *NomFichier,sll_s *pl) ;
+int EnleveHote(char *chaine ) ;
+void list_namedconf(sll_s * p_l) ;
+char* RechercheNomDomaine(char *Domaine, sll_s * p_l) ;
+char* RechercheNetID(int Octets[4], sll_s * p_l) ;
+void LectureDB(char *NomFichier,sll_s *pl) ;
+void list_DB(sll_s * p_l) ;
+char  *Recherche_DB(char *Nom,int Type,sll_s * p_l) ;
+
+enum TypeEntree { DBDomain=1, DBAddress=2 ,Hint = 3 } ; 
+
+struct EntreeNamedConf
+{
+  char nom[80] ;
+  int I1,I2,I3,I4 ;
+  char Fichier[80] ;
+  char HV[80] ;
+  enum TypeEntree Type ;
+};
+
+struct EntreeZone
+{
+  char Nom[80] ;
+  char Valeur[80] ;
+  char* Type ;
+};
+
+#endif /* not H_LISTESIMPLE */
