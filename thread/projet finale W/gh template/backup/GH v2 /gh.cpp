@@ -188,8 +188,9 @@ int main(int argc, char* argv[])
 
     pthread_join(ThreadEvenements,NULL);
 
+    fprintf(stderr,"t'as perdu \n");
 
-    exit(0);
+
 
 }
 //eric du futur fait ca 
@@ -275,11 +276,11 @@ void* fctThreadFenetreGraphique(void*)
     }
  }
 
- // for(int i = 0; i >-1; i--) //il y a une erreur sur le truc de matagne c'est l'inverse du schema qu'il a fait
+ // for(int i = 1; i <5; i++) //il y a une erreur sur le truc de matagne c'est l'inverse du schema qu'il a fait
  // {
- //    if(etatJeu.insecticidesG[i].presence == NORMAL)
+ //    if(etatJeu.insecticidesD[i].presence == NORMAL)
  //    {
- //         afficherInsecticideG(i);  
+ //         afficherInsecticideD(i);  
  //    }
  // }
  pthread_mutex_unlock(&mutexEtatJeu);
@@ -370,7 +371,7 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                             {
                                 if(etatJeu.guepes[i].presence == NORMAL)
                                 {
-                                    pthread_kill(etatJeu.guepes[i].tid, SIGINT);//pourquoi ca crash
+                                    pthread_kill(etatJeu.guepes[i].tid, SIGINT);
                                 }
                             }
                             pthread_mutex_unlock(&mutexEtatJeu);
@@ -417,7 +418,7 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                             }
                             else if(etatJeu.araigneesD[0].presence == AUCUN)
                             {
-                                pthread_create(&ThreadInsecticideD, NULL, fctThreadInsecticideD, NULL);
+                                // pthread_create(&ThreadInsecticideD, NULL, fctThreadInsecticideD, NULL);
                             }
                             pthread_mutex_unlock(&mutexEtatJeu);
                             nanosleep(&tempsstan,NULL);
@@ -693,7 +694,7 @@ void *fctThreadEnnemis(void *)//probablement utiliser des cases ou un vecteur  e
         EnnemiAleatoireRandomAuPif=rand() % 5;
 
         //to do enlever le hardcodage du spawn
-// EnnemiAleatoireRandomAuPif=0;
+// EnnemiAleatoireRandomAuPif=4;
         switch(EnnemiAleatoireRandomAuPif)
         {
             case 0://GUEPE
@@ -735,9 +736,6 @@ void *fctThreadGuepe(void *)//peut etre envoyer kill pour communiquer avec le si
     sigemptyset(&mask);
     sigaddset(&mask, SIGALRM);//selectionner le signal
     sigaddset(&mask, SIGUSR1);//selectionner le signal
-
-    sigaddset(&mask, SIGUSR2);//selectionner le signal
-    sigaddset(&mask, SIGQUIT);//selectionner le signal
 
     pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
 
@@ -995,7 +993,7 @@ void *fctThreadAraigneeG(void *)
         {
             printf("nop///\n");
             pthread_mutex_unlock(&mutexEtatJeu);
-            pthread_kill(etatJeu.insecticidesG[i].tid,SIGQUIT);
+            pthread_kill(etatJeu.insecticidesG[i].tid,SIGQUIT);//crash si ca touche le mob
             pthread_mutex_lock(&mutexEtatJeu);
             etatJeu.araigneesG[i].presence == AUCUN;
             printf("MBappe///\n");
@@ -1068,16 +1066,12 @@ void *fctThreadAraigneeD(void *)
             nanosleep(&WonderFullEveryday, NULL);
         }
         
-        if(etatJeu.insecticidesG[i-1].presence==NORMAL)//peut etre un conflit dans la variable spécifique je sais pas moi
-        {
-            printf("nop///\n");
-            pthread_mutex_unlock(&mutexEtatJeu);
-            pthread_kill(etatJeu.insecticidesG[i].tid,SIGQUIT);
-            pthread_mutex_lock(&mutexEtatJeu);
-            etatJeu.araigneesG[i].presence == AUCUN;
-            printf("MBappe///\n");
-            pthread_exit(0);
-        }
+        // pthread_mutex_lock(&mutexEtatJeu);
+        // if(etatJeu.insecticidesD[i].presence==NORMAL)
+        // {
+        //     pthread_kill(etatJeu.insecticidesD[i].tid,SIGQUIT);
+        // }
+        // pthread_mutex_unlock(&mutexEtatJeu);
 
         pthread_mutex_lock(&mutexEtatJeu);
         etatJeu.araigneesD[i].presence = AUCUN;//clean derriere en gros passage eric
@@ -1125,6 +1119,7 @@ void *fctThreadInsecticideG(void *)//0.2sec
             pthread_kill(ThreadAraigneeG, SIGUSR2);
         }
 
+
         pthread_mutex_lock(&mutexEtatJeu);
         etatJeu.insecticidesG[i].presence = AUCUN;
         pthread_mutex_unlock(&mutexEtatJeu);
@@ -1134,7 +1129,8 @@ void *fctThreadInsecticideG(void *)//0.2sec
 
 }
 
-void *fctThreadInsecticideD(void *)//pas encore test j'ai juste remis le truc pour que ca marche comme a gauche
+
+void *fctThreadInsecticideD(void *)//0.2sec
 {
     //to do masque
     sigset_t mask;
@@ -1150,19 +1146,19 @@ void *fctThreadInsecticideD(void *)//pas encore test j'ai juste remis le truc po
     pthread_sigmask(SIG_UNBLOCK, &mask, NULL);// bloquer
 
     S_LOCALISATION *PositionGazDroite = (S_LOCALISATION*)malloc(sizeof(S_LOCALISATION));//position | direction
-    PositionGazDroite->position=3;
-    PositionGazDroite->orientation=GAUCHE;
+    PositionGazDroite->position=0;
+    PositionGazDroite->orientation=DROITE;
     pthread_setspecific(keySpec,(void*)PositionGazDroite);//c'est le coffre
     
     struct timespec Despacito;
     Despacito.tv_sec =0;
     Despacito.tv_nsec = 200000000; //O,2 SECONDe
-    for(int i=1;i <5 ;i++)
+    for(int i=0;i <4;i++)
     {
         pthread_mutex_lock(&mutexEtatJeu);
         etatJeu.insecticidesD[i].presence = NORMAL;
         etatJeu.insecticidesD[i].tid = pthread_self();
-        PositionGazDroite->position=1;
+        PositionGazDroite->position=3;
         pthread_mutex_unlock(&mutexEtatJeu);
 
         nanosleep(&Despacito,NULL);
@@ -1200,7 +1196,7 @@ void handlerSIGALRM(int sig)//je crash dés que je l'invoque
     alarm(10);//jsp si c'est propre de faire ca mais vu qu'on sort pas de la boucle je vois pas comment je pourrai le réappeler dans le thread enemie
 }
 
-void handlerSIGINT(int sig)//meme en commentant tout ca crash
+void handlerSIGINT(int sig)
 {
     (void)sig;//pas avoir le warning
     fprintf(stderr,"(%d) SigInt envoyer\n" ,pthread_self());
@@ -1278,47 +1274,45 @@ void handlerSIGUSR2(int sig)
     pthread_exit(0);
 }
 
-void handlerSIGQUIT(int sig)//quand ca touchz ca crash
+void handlerSIGQUIT(int sig)//marche oas
 {
     (void)sig;
 
-            printf("zidane///\n");
+    //         printf("zidane///\n");
 
-    S_LOCALISATION *PositionGaz = (S_LOCALISATION*)pthread_getspecific(keySpec);//c'est le coffre
-                printf("%d||Orientation\n",PositionGaz->orientation);
-                                printf("%d||||Posi\n",PositionGaz->position);
-                printf("cr7///\n");
+    // S_LOCALISATION *PositionGaz = (S_LOCALISATION*)pthread_getspecific(keySpec);//c'est le coffre
+    //             printf("%d||Orientation\n",PositionGaz->orientation);
+    //                             printf("%d||||Posi\n",PositionGaz->position);
+    //             printf("cr7///\n");
 
 
-    pthread_mutex_lock(&mutexEtatJeu);
-    printf("cr7///69\n");
-    if(PositionGaz->orientation==GAUCHE)
-    {
-        if(etatJeu.insecticidesG[PositionGaz->position].presence== NORMAL )
-        {
-            etatJeu.araigneesG[PositionGaz->position].presence== AUCUN;
-            etatJeu.insecticidesG[PositionGaz->position].presence== AUCUN;
-            etatJeu.score++;
-        }
+    // pthread_mutex_lock(&mutexEtatJeu);
+    // printf("cr7///69\n");
+    // if(PositionGaz->orientation==GAUCHE)
+    // {
+    //     if(etatJeu.insecticidesG[PositionGaz->position].presence== NORMAL )
+    //     {
+    //         etatJeu.araigneesG[PositionGaz->position].presence== AUCUN;
+    //         etatJeu.score++;
+    //     }
 
-        if(etatJeu.insecticidesG[PositionGaz->position].presence== NORMAL )
-        {printf("crdd7///\n");
-            etatJeu.araigneesG[PositionGaz->position].presence== AUCUN;
-            etatJeu.score++;printf("ccccr7///\n");
-        }
-        etatJeu.insecticidesG[PositionGaz->position].presence== NORMAL;
+    //     if(etatJeu.insecticidesG[PositionGaz->position].presence== NORMAL )
+    //     {printf("crdd7///\n");
+    //         etatJeu.araigneesG[PositionGaz->position].presence== AUCUN;
+    //         etatJeu.score++;printf("ccccr7///\n");
+    //     }
+    //     etatJeu.insecticidesG[PositionGaz->position].presence== NORMAL;
 
-    }
+    // }
 
-    else if(PositionGaz->orientation==DROITE)
-    {
-        if(etatJeu.insecticidesD[PositionGaz->position].presence== NORMAL)
-        {
-            etatJeu.araigneesD[PositionGaz->position-1].presence= AUCUN;
-            etatJeu.insecticidesD[PositionGaz->position].presence== AUCUN;
-            etatJeu.score++;
-        }
-    }
+    // else if(PositionGaz->orientation==DROITE)
+    // {
+    //     if(etatJeu.araigneesD[0].presence == NORMAL && etatJeu.actionStanley == SPRAY)
+    //     {
+    //         etatJeu.araigneesD[PositionGaz->position].presence= AUCUN;
+    //         etatJeu.score++;
+    //     }
+    // }
 
     pthread_mutex_unlock(&mutexEtatJeu);
 
