@@ -548,7 +548,7 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                             etatJeu.actionStanley = NORMAL;
                         }
 
-                        else if(etatJeu.positionStanley == 3)
+                        else if(etatJeu.positionStanley == 3)//il est dans la partie droie la 
                         {
                             pthread_mutex_unlock(&mutexEtatJeu);
                             nanosleep(&tempsstan,NULL);
@@ -558,7 +558,7 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                             {
                                 if(etatJeu.chenillesD[i].presence == NORMAL)
                                 {
-                                    pthread_kill(etatJeu.chenillesD[i].tid, SIGUSR2);
+                                    pthread_kill(etatJeu.chenillesD[i].tid, SIGUSR1);
                                 }
                             }
                             pthread_mutex_unlock(&mutexEtatJeu);
@@ -994,7 +994,7 @@ void *fctThreadAraigneeG(void *)
         {
             printf("l'araigné qui bouge touche l'insecticidesG\n");;
             pthread_kill(etatJeu.insecticidesG[i].tid,SIGQUIT);// POURQUOI TU INVOQUES LE SIGURSR1 SANS AUCUNE RAISON WESH 
-            etatJeu.araigneesG[i].presence == AUCUN;//pourquoi tu refuse de  disparaitre 
+            // etatJeu.araigneesG[i].presence == AUCUN;//pourquoi tu refuse de  disparaitre 
             pthread_mutex_unlock(&mutexEtatJeu);//SINON CA FAIT CRASH CAR JE LIBERE PAS LE MUTEX
             pthread_exit(0);
         }
@@ -1070,7 +1070,7 @@ void *fctThreadAraigneeD(void *)
         {
             printf("l'araigné qui bouge touche l'insecticidesD\n");;
             pthread_kill(etatJeu.insecticidesD[i].tid,SIGQUIT);// POURQUOI TU INVOQUES LE SIGURSR1 SANS AUCUNE RAISON WESH 
-            etatJeu.araigneesD[i].presence == AUCUN;//pourquoi tu refuse de  disparaitre 
+            // etatJeu.araigneesD[i].presence == AUCUN;//pourquoi tu refuse de  disparaitre 
             pthread_mutex_unlock(&mutexEtatJeu);//SINON CA FAIT CRASH CAR JE LIBERE PAS LE MUTEX
             pthread_exit(0);
         }
@@ -1154,6 +1154,7 @@ void *fctThreadInsecticideD(void *)//wtf l'affichage  a la posi 4 dés que je la
 
     S_LOCALISATION *PositionGazDroite = (S_LOCALISATION*)malloc(sizeof(S_LOCALISATION));//position | direction
     PositionGazDroite->orientation=DROITE;
+    PositionGazDroite->position=0;
     pthread_setspecific(keySpec,(void*)PositionGazDroite);//c'est le coffre
     
     struct timespec DernierChance;
