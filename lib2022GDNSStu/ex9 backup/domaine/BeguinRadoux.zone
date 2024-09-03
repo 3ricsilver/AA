@@ -1,0 +1,27 @@
+$TTL 2D
+
+BeguinRadoux.eu. 	IN 	SOA 	gateway.BeguinRadoux.eu.
+	root.BeguinRadoux.eu. (
+		2001040501 	; 	serial
+		1D 		; 	refresh
+		2H 		; 	retry
+		1W 		; 	expiry
+		2D 	) 	; 	minimum
+
+	IN 	NS 	gateway
+	IN 	MX 	10 	sun
+
+
+gateway 	IN 	A 	111.112.113.114
+
+ 	IN 	A 	111.112.114.1
+
+sun 	IN 	A 	111.112.113.2
+
+mars 	IN 	A 	111.112.113.3
+
+twix 	IN 	A 	111.112.114.2
+
+chats 	IN 	A 	111.112.114.3
+
+BR	IN 	BR	"BEGUINRADOUX"

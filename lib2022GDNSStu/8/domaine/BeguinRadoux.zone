@@ -1,0 +1,40 @@
+$ORIGIN .
+
+$TTL 172800     ; 2 days
+
+BeguinRadoux.eu.           IN SOA gateway.BeguinRadoux.eu. 
+root.BeguinRadoux.eu.  (
+                        2001040502 ; serial
+
+                        86400 ; refresh (1 day)
+
+                        7200 ; retry (2 hours)
+
+                        604800 ; expire (1 week)
+
+                        172800 ; minimum (2 days)
+
+                        )
+$ORIGIN BeguinRadoux.eu.
+
+                NS  gateway.BeguinRadoux.eu.
+
+                MX  10 sun.BeguinRadoux.eu.
+
+
+table           A   111.112.114.2
+
+gateway             A   111.112.113.114
+
+                A   111.112.114.1
+
+mars            A   111.112.113.200
+
+twix            A   111.112.113.3
+
+sun             A   111.112.113.2
+
+chats              NS  zorro.chats.BeguinRadoux.eu.
+
+
+zorro.europe.BeguinRadoux.eu. A     192.168.1.21

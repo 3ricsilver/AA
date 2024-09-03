@@ -202,8 +202,11 @@ void* fctThreadFenetreGraphique(void*)
     sigaddset(&mask, SIGUSR1);//selectionner le signal
     pthread_sigmask(SIG_BLOCK, &mask, NULL);// bloquer
 
- while(true)
- {
+  pthread_mutex_lock(&mutexEtatJeu);//en fros pur tuer 
+  while(etatJeu.nbEchecs<3)
+  {      
+  pthread_mutex_unlock(&mutexEtatJeu);
+  
   struct timespec temps;
   temps.tv_sec =0;
   temps.tv_nsec = 100000000; //O,1 SECONDE
@@ -274,7 +277,7 @@ void* fctThreadFenetreGraphique(void*)
     }
  }
 
- for(int i = 1; i<5; i++) //WTF pourquoi si je definis a 1 ca fait pop un nuage a la posi 4
+ for(int i = 0; i<4; i++) //WTF pourquoi si je definis a 1 ca fait pop un nuage a la posi 4
  {
     if(etatJeu.insecticidesD[i].presence == NORMAL)
     {
@@ -306,8 +309,11 @@ void *fctThreadEvenements(void *)
 
     int event;//ca marche si je fais evenement direct mais ca crash au bout d'un moment
 
-    while(1)
+    pthread_mutex_lock(&mutexEtatJeu);
+    while(etatJeu.nbEchecs<3)
     {
+        pthread_mutex_unlock(&mutexEtatJeu);
+
         event=lireEvenement();
         pthread_mutex_lock(&mutexEvenement);//en gros pense au feu rouge il attend que le truc soit unlock pour la lock puis on va la manipuler
         evenement=event;
@@ -323,9 +329,8 @@ void *fctThreadEvenements(void *)
         temps.tv_sec =0;
         temps.tv_nsec = 100000000; //O,1 SECONDE
         nanosleep(&temps, NULL); // attendre 0,1 s 
-
-
     }
+    pthread_exit(0);
 }
 
 void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de multiple if pourquoi pas faire une grosse condition genre 0 jusqu'a 4
@@ -417,6 +422,7 @@ void* fctThreadStanley(void*)//quand tu pourras test pourquoi pas a la place de 
                             }
                             else
                             {
+                                printf("test gazz gazz droite\n");//???
                                 pthread_create(&ThreadInsecticideD, NULL, fctThreadInsecticideD, NULL);
                             }
                             pthread_mutex_unlock(&mutexEtatJeu);
@@ -693,7 +699,7 @@ void *fctThreadEnnemis(void *)//probablement utiliser des cases ou un vecteur  e
         EnnemiAleatoireRandomAuPif=rand() % 5;
 
         //to do enlever le hardcodage du spawn
-// EnnemiAleatoireRandomAuPif=0;
+// EnnemiAleatoireRandomAuPif=4;
         switch(EnnemiAleatoireRandomAuPif)
         {
             case 0://GUEPE
@@ -1065,16 +1071,19 @@ void *fctThreadAraigneeD(void *)
             nanosleep(&WonderFullEveryday, NULL);
         }
         
-        pthread_mutex_lock(&mutexEtatJeu);
-        if(etatJeu.insecticidesD[i].presence==NORMAL)//peut etre un conflit dans la variable spécifique je sais pas moi
+   /*     pthread_mutex_lock(&mutexEtatJeu);//truc qui fait crash
+        for (i=1; i<=4; i++)
         {
-            printf("l'araigné qui bouge touche l'insecticidesD\n");;
-            pthread_kill(etatJeu.insecticidesD[i].tid,SIGQUIT);// POURQUOI TU INVOQUES LE SIGURSR1 SANS AUCUNE RAISON WESH 
-            // etatJeu.araigneesD[i].presence == AUCUN;//pourquoi tu refuse de  disparaitre 
-            pthread_mutex_unlock(&mutexEtatJeu);//SINON CA FAIT CRASH CAR JE LIBERE PAS LE MUTEX
-            pthread_exit(0);
-        }
-        pthread_mutex_unlock(&mutexEtatJeu);
+                if(etatJeu.insecticidesD[i].presence==NORMAL)//pour tester le reste mettre tout ca en com histoire que j'ai pas zero
+                {printf("%d\n",i);
+                    printf("l'araigné qui bouge touche l'insecticidesD\n");;
+                    pthread_kill(etatJeu.insecticidesD[i].tid,SIGQUIT);// POURQUOI TU INVOQUES LE SIGURSR1 SANS AUCUNE RAISON WESH 
+                    // etatJeu.araigneesD[i].presence == AUCUN;//pourquoi tu refuse de  disparaitre 
+                    pthread_mutex_unlock(&mutexEtatJeu);//SINON CA FAIT CRASH CAR JE LIBERE PAS LE MUTEX
+                    pthread_exit(0);
+                }
+        } 
+        pthread_mutex_unlock(&mutexEtatJeu);*/
 
         pthread_mutex_lock(&mutexEtatJeu);
         etatJeu.araigneesD[i].presence = AUCUN;//clean derriere en gros passage eric
@@ -1139,6 +1148,7 @@ void *fctThreadInsecticideG(void *)//0.2sec
 
 void *fctThreadInsecticideD(void *)//wtf l'affichage  a la posi 4 dés que je lance et pourquoi j'ai un coredump apparemment c'est un délire avec le décalage en gros vecteur et posi
 {//on
+    printf("creation insecticidesD Debug\n");
     //to do masque
     sigset_t mask;
     sigemptyset(&mask);

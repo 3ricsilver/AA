@@ -36,3 +36,6 @@ int main (void)
   else
      printf("Rien trouvé !\n") ;
 }
+
+
+char* RechercheNomDomaine(char *Domaine, sll_s * p_l) ;

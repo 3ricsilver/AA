@@ -1,0 +1,31 @@
+//definition de l'acl et on autorise que l'addresse ip 127.0.0.1 et le sous réseaux 127.0.0.1 en gros c'est que eux qui peuvent interroger le serveur dns
+
+acl internal { 127.0.0.1 ; 192.168.1/24 ; };
+options 
+{
+    directory "/etc/bind/";
+    allow-query { internal ; };
+    listen-on port 53 { 127.0.0.1 ; 192.168.1.30 ; };
+    pid-file (none) ;
+};
+
+//configure la zone
+zone "erico.eric.com" in 
+{
+    type master;
+    file "erico.eric.zone";
+     allow-update { 192.168.40.140; } ;
+};
+
+zone "40.168.192.in-addr.arpa" in 
+{
+type master;
+file "192.168.40.zone";
+};
+
+
+zone "140.168.192.in-addr.arpa" in {
+
+type master;
+file "192.168.140.zone";
+};

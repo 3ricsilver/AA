@@ -1,0 +1,28 @@
+$ORIGIN .
+$TTL 172800 ; 2 days
+maller.com. IN SOA gateway.world.cosmos. 
+root.eric.com. (
+					2001040502 ; serial
+					86400 ; refresh (1 day)
+					7200 ; retry (2 hours)
+					604800 ; expire (1 week)
+					172800 ; minimum (2 days)
+)
+
+$ORIGIN eric.com.
+				NS gateway.maller.com.
+				MX 10 Jamie.maller.com
+
+julien a 192.168.10.10
+
+gateway a 192.168.10.1
+		
+$TTL 86400 ; 1 day
+
+pierre a 192.168.10.11
+
+$TTL 172800 ; 2 days
+
+Jalien 		NS luc.jalien.maller.com.
+
+luc.jalien.maller.com. A 192.168.1.30

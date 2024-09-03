@@ -1,0 +1,40 @@
+$ORIGIN .
+
+$TTL 172800     ; 2 days
+
+TruongDatolli.eu.           IN SOA gateway.TruongDatolli.eu. 
+root.TruongDatolli.eu.  (
+                        2001040502 ; serial
+
+                        86400 ; refresh (1 day)
+
+                        7200 ; retry (2 hours)
+
+                        604800 ; expire (1 week)
+
+                        172800 ; minimum (2 days)
+
+                        )
+$ORIGIN TruongDatolli.eu.
+
+                NS  gateway.TruongDatolli.eu.
+
+                MX  10 sun.TruongDatolli.eu.
+
+
+table           A   111.112.114.2
+
+gateway             A   111.112.113.114
+
+                A   111.112.114.1
+
+mars            A   111.112.113.200
+
+twix            A   111.112.113.3
+
+sun             A   111.112.113.2
+
+chats              NS  zorro.chats.TruongDatolli.eu.
+
+
+chats.europe.TruongDatolli.eu. A     192.168.1.21

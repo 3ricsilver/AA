@@ -1,0 +1,28 @@
+$ORIGIN .
+$TTL 172800 ; 2 days
+
+erico.eric.com IN SOA franck.erico.eric.com. 
+root.eric.com. (
+	2001040502 ; serial
+	86400 ; refresh (1 day)
+	7200 ; retry (2 hours)
+	604800 ; expire (1 week)
+	172800 ; minimum (2 days)
+)
+NS franck.erico.eric.com.
+
+	MX 10 pompeo2.erico.eric.com.
+
+$ORIGIN	erico.eric.com.
+
+pompeo2 a 192.168.140.2
+
+ronaldo2 a 192.168.40.140
+	a 192.168.140.1
+
+$TTL 86400 ; 1 day
+
+
+
+pompeo2 a 192.168.10.11
+$TTL 172800 ; 2 days

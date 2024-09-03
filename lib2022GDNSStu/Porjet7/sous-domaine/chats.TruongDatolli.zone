@@ -1,0 +1,35 @@
+$ORIGIN .
+
+$TTL 172800 ; 2 days
+
+chats.TruongDatolli.eu 	IN SOA 	tortue.chats.TruongDatolli.eu. 
+root.TruongDatolli.eu. (
+
+						2001040502 ; serial
+
+						86400 ; refresh (1 day)
+
+						7200 ; retry (2 hours)
+
+						604800 ; expire (1 week)
+
+						172800 ; minimum (2 days)
+						)
+
+					NS 	tortue.chats.TruongDatolli.eu.
+
+					MX 	10 lapin.chats.TruongDatolli.eu.
+
+$ORIGIN chats.TruongDatolli.eu.
+
+table2 					A 	111.112.114.2
+
+tortue 					A 	111.112.113.114
+
+					A 	111.112.114.1
+
+mars2 				A 	111.112.113.200
+
+twix2 				A 	111.112.113.3
+
+lapin 				A 	111.112.113.2

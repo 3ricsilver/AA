@@ -1,0 +1,17 @@
+127.0.0.1 localhost
+# Ceci sont nos machines les plus performantes
+# ------------------------------------------------------------------
+192.249.249.2 rocobop.film.com robocop
+192.249.249.3 terminator.film.com terminator bigt
+192.249.249.4 diehard.film.com diehard dh
+# 
+# Les machines les moins performantes du reseau
+#
+192.253.253.2misery.film.com misery
+192.253.253.3 shining.film.com shining
+192.253.253.4 carrieL.film.com carrie
+#
+# La configuration du routeur
+#
+192.249.249.1 gateway.film.com gateway gw gw249
+192.253.253.1 gateway.film.com gateway gw gw253
